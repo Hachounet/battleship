@@ -1,10 +1,27 @@
+/* eslint-disable no-console */
 const Ships = require('./Ships');
 
 class Gameboard {
   constructor(missedLogs = null, shipsLogs = []) {
-    (this.missedLogs = missedLogs),
-      (this.shipsLogs = shipsLogs),
-      (this.adjacencyList = {});
+    this.missedLogs = missedLogs;
+    this.shipsLogs = shipsLogs;
+    this.adjacencyList = {};
+    this.populateGraph();
+    this.populateEdge();
+    this.populateShips();
+  }
+
+  populateShips() {
+    this.placeShip('A1', 2, 'col');
+    this.placeShip('D1', 3, 'row');
+    this.placeShip('G1', 4, 'col');
+    this.placeShip('A3', 4, 'row');
+    this.placeShip('A8', 2, 'col');
+    this.placeShip('F3', 3, 'col');
+    this.placeShip('J3', 2, 'row');
+    this.placeShip('F6', 3, 'row');
+    this.placeShip('J6', 3, 'row');
+    this.placeShip('E10', 6, 'col');
   }
 
   placeShip(coord, length, rowOrCol) {
@@ -53,30 +70,40 @@ class Gameboard {
   }
 
   receiveAttack(coord) {
-    if (this.adjacencyList[coord].slot !== null) {
+    let result;
+    if (
+      this.adjacencyList[coord].slot !== null &&
+      this.adjacencyList[coord].slot !== 'touched'
+    ) {
       this.adjacencyList[coord].slot.hitFn();
 
       if (this.adjacencyList[coord].slot.sunkFn() === true) {
         const shipIndex = this.shipsLogs.findIndex(
           (item) => item.sunk === true
         );
-        console.log(shipIndex);
+
         this.shipsLogs.splice(shipIndex, 1);
 
-        return true;
+        this.adjacencyList[coord].slot = 'touched';
+        result = 'SUNK';
+        return result;
       }
+      this.adjacencyList[coord].slot = 'touched';
+      result = true;
     } else {
       this.missedLogs = new Set().add(coord);
-      return false;
+      result = false;
+      this.adjacencyList[coord].slot = 'Wtouched';
+      return result;
     }
+    return result;
   }
 
   allSunk() {
     if (this.shipsLogs.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   addVertex(vertex) {
@@ -94,6 +121,7 @@ class Gameboard {
     }
     this.adjacencyList[vertex1].neighbors.add(vertex2);
     this.adjacencyList[vertex2].neighbors.add(vertex1);
+    return true;
   }
 
   populateGraph() {
@@ -124,19 +152,4 @@ class Gameboard {
   }
 }
 
-const gameBoardTT = new Gameboard();
-gameBoardTT.populateGraph();
-gameBoardTT.populateEdge();
-gameBoardTT.placeShip('A7', 4, 'row');
-console.log(gameBoardTT.adjacencyList['A7'].slot);
-console.log(gameBoardTT.adjacencyList['A8'].slot);
-console.log(gameBoardTT.shipsLogs);
-console.log('--------------');
-gameBoardTT.adjacencyList['A7'].slot.hitFn();
-gameBoardTT.adjacencyList['A8'].slot.hitFn();
-gameBoardTT.receiveAttack('A9');
-console.log('----------------------');
-console.log(gameBoardTT.shipsLogs);
-gameBoardTT.receiveAttack('A10');
-console.log(gameBoardTT.shipsLogs);
 module.exports = Gameboard;

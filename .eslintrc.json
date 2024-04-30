@@ -12,12 +12,12 @@
   "ignorePatterns": ["webpack.config.js"],
   "rules": {},
   "overrides": [
-    {
-      "files": ["tests/**/*"],
+    /* {
+      "files": ["../tests/*.js"],
       "plugins": ["jest"],
       "env": {
         "jest/globals": true
       }
-    }
+    } */
   ]
 }
