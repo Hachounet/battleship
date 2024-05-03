@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-const Ships = require('./Ships');
+const Ships = require('./internal');
 
 class Gameboard {
-  constructor(missedLogs = null, shipsLogs = []) {
+  constructor(missedLogs = new Set(), shipsLogs = []) {
     this.missedLogs = missedLogs;
     this.shipsLogs = shipsLogs;
     this.adjacencyList = {};
@@ -70,6 +70,52 @@ class Gameboard {
   }
 
   receiveAttack(coord) {
+    // Need to redo tests for this function
+    let result;
+    if (this.adjacencyList[coord].slot === null) {
+      console.log('SLOT === NULL');
+      this.missedLogs.add(coord);
+      result = false;
+      this.adjacencyList[coord].status = 'Wtouched';
+      return result;
+    }
+    if (this.adjacencyList[coord].status === 'Wtouched') {
+      console.log('SLOT === NULL && STATUS = WTOUCHED');
+      result = false;
+      return result;
+    }
+    if (this.adjacencyList[coord].slot.sunkFn()) {
+      console.log('IF SLOT SUNKFN IS TRUE');
+      result = true;
+      console.log('BOUYA');
+      return result;
+    }
+    if (this.adjacencyList[coord].status === 'Stouched') {
+      console.log('IF SHIP IS TOUCHED');
+      result = false;
+      return result;
+    }
+    console.log('HIT FN AND CHANGE STATUS');
+    this.adjacencyList[coord].slot.hitFn();
+    this.adjacencyList[coord].status = 'Stouched';
+
+    if (
+      this.adjacencyList[coord].slot !== null &&
+      this.adjacencyList[coord].slot.sunkFn() === true
+    ) {
+      console.log('IF NOT NULL && SUNK SO REMOVE FROM SHIPSLOGS');
+      const shipIndex = this.shipsLogs.findIndex((item) => item.sunk === true);
+      this.shipsLogs.splice(shipIndex, 1);
+
+      result = 'SUNK';
+      return result;
+    }
+
+    result = true;
+    return result;
+  }
+
+  /* receiveAttack(coord) {
     let result;
     if (
       this.adjacencyList[coord].slot !== null &&
@@ -97,18 +143,24 @@ class Gameboard {
       return result;
     }
     return result;
-  }
+  } */
 
   allSunk() {
+    let result = false;
     if (this.shipsLogs.length === 0) {
-      return true;
+      result = true;
+      return result;
     }
-    return false;
+    return result;
   }
 
   addVertex(vertex) {
     if (!this.adjacencyList[vertex]) {
-      this.adjacencyList[vertex] = { neighbors: new Set(), slot: null };
+      this.adjacencyList[vertex] = {
+        neighbors: new Set(),
+        slot: null,
+        status: null,
+      };
     }
   }
 

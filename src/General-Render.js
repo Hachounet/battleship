@@ -5,9 +5,10 @@
 First we get ships keys from Players, then we generate PlayerParts and create gameboard for each players, then we generate ships position and gameboards.
 */
 
+const { bridgeNewGame } = require('./internal');
+
 class GeneralRender {
   constructor(p1keys, p2keys) {
-    console.log(`i am into construcotr ${p1keys}`);
     this.P1keys = Object.keys(p1keys);
     this.P2Keys = Object.keys(p2keys);
     this.body = document.querySelector('body');
@@ -29,6 +30,7 @@ class GeneralRender {
 
   changeMessage(message) {
     const messageDiv = document.getElementById('message-div');
+
     messageDiv.textContent = message;
   }
 
@@ -65,7 +67,6 @@ class GeneralRender {
   }
 
   generateGB1() {
-    console.log(this.P1keys);
     const array1 = this.sortArray(this.P1keys);
     array1.forEach((key) => {
       const div = document.createElement('div');
@@ -100,10 +101,12 @@ class GeneralRender {
   }
 
   generateInputsPlayers() {
-    const P1Name = document.createElement('input');
+    const P1Name = document.createElement('p');
+    P1Name.textContent = 'Player 1';
     this.leftPart.append(P1Name);
 
-    const P2Name = document.createElement('input');
+    const P2Name = document.createElement('p');
+    P2Name.textContent = 'P2';
     this.rightPart.append(P2Name);
   }
 
@@ -126,12 +129,50 @@ class GeneralRender {
     const menuOptionsDiv = document.createElement('div');
     menuOptionsDiv.id = 'menu-options';
     const AIOrPlayer = document.createElement('button');
-    AIOrPlayer.textContent = 'AI/Player Opponent';
+
+    const transitionSpan = document.createElement('span');
+    const gradientSpan = document.createElement('span');
+    const labelSpan = document.createElement('span');
+
+    transitionSpan.classList.add('transition');
+    gradientSpan.classList.add('gradient');
+    labelSpan.classList.add('label');
+    labelSpan.textContent = ' VS AI';
+
+    AIOrPlayer.append(transitionSpan, gradientSpan, labelSpan);
+
+    AIOrPlayer.addEventListener('click', () => {
+      // create own function
+      const p2Name = document.querySelector('div#right-part p');
+      if (p2Name.textContent === 'P2') {
+        p2Name.textContent = 'AI';
+      } else {
+        p2Name.textContent = 'P2';
+      }
+
+      if (labelSpan.textContent === ' VS AI') {
+        labelSpan.textContent = ' VS Player';
+      } else {
+        labelSpan.textContent = ' VS AI';
+      }
+    });
     const start = document.createElement('button');
-    start.textContent = 'Launch game';
+    const transitionSpanStart = document.createElement('span');
+    const gradientSpanStart = document.createElement('span');
+    const labelSpanStart = document.createElement('span');
+
+    transitionSpanStart.classList.add('transition');
+    gradientSpanStart.classList.add('gradient');
+    labelSpanStart.classList.add('label');
+    labelSpanStart.textContent = 'Start';
+    start.append(transitionSpanStart, gradientSpanStart, labelSpanStart);
 
     menuOptionsDiv.append(AIOrPlayer, start);
     this.menuPart.append(menuOptionsDiv);
+
+    start.addEventListener('click', () => {
+      bridgeNewGame();
+    });
   }
 }
 
